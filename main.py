@@ -30,14 +30,14 @@ class MineSweeper:
         self.calcAroundBombs()
         # デバッグ用
         if isDebug:
-            self.debug()
+            self.printBoard()
         else:
             pass
 
-    def __str__(self):
-        return f"{self.nBomb}"
+    # def __str__(self):
+    #     return f"{self.nBomb}"
 
-    def debug(self):
+    def printBoard(self):
         print(self.bombPosList)
         for r in range(self.nRow):
             for c in range(self.nCol):
@@ -67,19 +67,25 @@ class MineSweeper:
                     else:
                         continue
 
+    def fragGrid(self, iRow, iCol):
+        if self.board[iRow][iCol].isOpen:
+            pass
+        else:
+            self.board[iRow][iCol].isFrag ^= True
+
     def openGrid(self, iRow, iCol):
-        self.board[iRow][iCol].isOpen = True
-        if self.board[iRow][iCol].nAroundBomb == 0:
-            for dr in range(-1, 2):  # [-1, 1]
-                for dc in range(-1, 2):  # [-1, 1]
-                    nr, nc = iRow + dr, iCol + dc
-                    if (0 <= nr < self.nRow) and (0 <= nc < self.nCol):  # 枠内だよ
-                        if self.board[nr][nc].isOpen:
-                            continue
-                        else:
+        if self.board[iRow][iCol].isFrag or self.board[iRow][iCol].isOpen:
+            pass
+        else:
+            self.board[iRow][iCol].isOpen = True
+            if self.board[iRow][iCol].nAroundBomb == 0:
+                for dr in range(-1, 2):  # [-1, 1]
+                    for dc in range(-1, 2):  # [-1, 1]
+                        nr, nc = iRow + dr, iCol + dc
+                        if (0 <= nr < self.nRow) and (0 <= nc < self.nCol):
                             self.openGrid(nr, nc)
-                    else:
-                        continue
+                        else:
+                            continue
 
     def judgeIsLose(self):
         currentNBombOpen = sum([
@@ -119,12 +125,12 @@ def main():
     while game.isPlay:
         isValidGrid = False
         while not (isValidGrid):
-            iRow, iCol = map(int, input("行・列番号を空白区切りで入力").split())
+            cmd, iRow, iCol = input("コマンド・行・列番号の順に空白区切りで入力").split()
             isValidGrid = (0 <= iRow < game.nRow) and (0 <= iCol < game.nCol)
         # マス開ける
         game.openGrid(iRow, iCol)
         deleteConsole(100)
-        game.debug()
+        game.printBoard()
         # 敗北判定
         if game.judgeIsLose():
             print("敗北！")
